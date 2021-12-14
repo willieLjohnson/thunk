@@ -16,7 +16,7 @@ rotation = 1.5708
 scale = Vector2( 0.429846, 0.429846 )
 texture = ExtResource( 2 )
 region_enabled = true
-region_rect = Rect2( 770, 800, 70, 100 )
+region_rect = Rect2( 1027, 821, 53, 81 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 rotation = 1.5708

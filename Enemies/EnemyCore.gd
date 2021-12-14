@@ -4,8 +4,8 @@ const BLOOD_PARTICLES = preload("res://Explosion.tscn")
 const ESSENCE_SCENE = preload("res://objects/Essence.tscn")
 
 
-export(int) var ACCELERATION = 500
-export(int) var MAX_SPEED = 85
+export(int) var ACCELERATION = 1
+export(int) var MAX_SPEED = 1
 export(int) var FRICTION = 100
 export(String) var essence_upgrade_variable = "base_damage"
 export(float) var essence_upgrade_amount = 0.01
