@@ -27,7 +27,7 @@ onready var base_modulate = Styles.ENEMY
 signal died(position)
 
 func _ready() -> void:
-	var arena = get_node("/root/Arena")
+	var arena = get_node("/root/World")
 	self.connect("died", arena, "enemy_died")
 	modulate = Styles.ENEMY
 

@@ -94,6 +94,9 @@ func update_depth():
 	depth.y += abs(player.velocity.normalized().y)
 
 	
+func _exit_tree() -> void:
+	Global.player = null
+	
 func update_OS_status():
 	is_ios = OS.get_name() == "iOS"
 	is_android = OS.get_name() == "Android"

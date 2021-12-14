@@ -5,8 +5,8 @@
 [ext_resource path="res://Player/Player.gd" type="Script" id=3]
 [ext_resource path="res://Collidables/Tree.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/World.gd" type="Script" id=5]
-[ext_resource path="res://Enemies/EnemyBase.tscn" type="PackedScene" id=6]
-[ext_resource path="res://pretty_env.tres" type="Environment" id=7]
+[ext_resource path="res://effects/BloomEnvironment.tscn" type="PackedScene" id=7]
+[ext_resource path="res://ui/UI.tscn" type="PackedScene" id=8]
 
 [sub_resource type="TileSet" id=1]
 0/name = "terrainTiles_default.png 0"
@@ -613,8 +613,12 @@ current = true
 smoothing_enabled = true
 smoothing_speed = 1.0
 
-[node name="EnemyBase" parent="." instance=ExtResource( 6 )]
-position = Vector2( 298, 316 )
+[node name="BloomEnvironment" parent="." instance=ExtResource( 7 )]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = ExtResource( 7 )
+[node name="UI" parent="." instance=ExtResource( 8 )]
+
+[node name="Pause" parent="UI/Container" index="0"]
+margin_right = 20.0
+margin_bottom = 20.0
+
+[editable path="UI"]

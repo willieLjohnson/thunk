@@ -14,9 +14,21 @@ var velocity = Vector2.ZERO
 var bullet = preload("res://Player/Bullet.tscn")
 var can_fire = true
 
+onready var shoot_dir = $ShootDir
+
+onready var move_joystick = get_parent().get_node("UI/Container/Joysticks/MoveJoystick/JoystickButton")
+onready var shoot_joystick = get_parent().get_node("UI/Container/Joysticks/ShootJoystick/JoystickButton")
+
+
 func _ready():
 	modulate = Styles.PLAYER_COLOR
 	Global.player = self
+	
+	Global.update_OS_status()
+	if not Global.is_mobile:
+		move_joystick.get_parent().hide()
+		shoot_joystick.get_parent().hide()
+
 
 func _process(delta):
 	look_at(get_global_mouse_position())
@@ -42,12 +54,11 @@ func _physics_process(delta: float) -> void:
 	
 
 	if Global.is_mobile:
-		print("mobile")
-##		input_vector = move_joystick.get_value()		
-#
-#		if shoot_joystick.event_is_pressed and Global.node_creation_parent != null and can_shoot:
-#			shoot_dir.set_cast_to(shoot_joystick.get_value())
-#
+		input_vector = move_joystick.get_value()		
+
+		if shoot_joystick.event_is_pressed and Global.node_creation_parent != null and can_fire:
+			shoot_dir.set_cast_to(shoot_joystick.get_value())
+
 #			if damage >= 3:
 #				Global.vibrate(2)
 #			elif damage >= 2:
@@ -55,13 +66,18 @@ func _physics_process(delta: float) -> void:
 #			else:
 #				Global.vibrate()
 #
-#			var ray_endpoint = shoot_dir.global_position + shoot_dir.cast_to
-#			var recoil = current_weapon.shoot(damage, ray_endpoint, modulate)
-#			velocity += recoil * global_position.direction_to(ray_endpoint).normalized()
-#			can_shoot = false
-#			Global.camera.screen_shake(5, 0.01)
-#			$ReloadSpeed.start()
-#			current_weapon.look_at(ray_endpoint)
+	
+			var ray_endpoint = shoot_dir.global_position + shoot_dir.cast_to
+			var bullet_instance = bullet.instance()
+			bullet_instance.modulate = Styles.PLAYER_COLOR
+			bullet_instance.position = $Weapon/BulletPoint.get_global_position()
+			bullet_instance.rotation_degrees = rotation_degrees
+			bullet_instance.apply_impulse(Vector2(), Vector2(bullet_speed, 0).rotated(rotation))
+			get_tree().get_root().add_child(bullet_instance)
+			can_fire = false
+			yield(get_tree().create_timer(fire_rate), "timeout")
+			can_fire = true
+
 	else:
 #		if Input.is_action_pressed("shoot") and Global.node_creation_parent != null and can_shoot:
 #			var direction = get_global_mouse_position() 
