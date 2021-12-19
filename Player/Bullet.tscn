@@ -84,14 +84,12 @@ contact_monitor = true
 script = ExtResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]
-rotation = 1.5708
 scale = Vector2( 0.429846, 0.429846 )
 texture = ExtResource( 2 )
 region_enabled = true
 region_rect = Rect2( 1027, 821, 53, 81 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-rotation = 1.5708
 shape = SubResource( 1 )
 
 [node name="Node" type="Node" parent="."]

@@ -48,24 +48,22 @@ local_coords = false
 process_material = SubResource( 2 )
 texture = ExtResource( 2 )
 
-[node name="Sprite" type="Sprite" parent="."]
+[node name="Body" type="Sprite" parent="."]
 position = Vector2( 0.247995, 0.26 )
-rotation = -1.5708
 scale = Vector2( 0.232, 0.232 )
 texture = ExtResource( 1 )
 region_enabled = true
 region_rect = Rect2( 686, 112, 235, 278 )
 
 [node name="Weapon" type="Sprite" parent="."]
-position = Vector2( 20, 0 )
-rotation = 1.5708
 scale = Vector2( 0.232, 0.232 )
 texture = ExtResource( 1 )
+offset = Vector2( 0, -150 )
 region_enabled = true
 region_rect = Rect2( 1041, 69, 125, 266 )
 
 [node name="BulletPoint" type="Node2D" parent="Weapon"]
-position = Vector2( 0, -125 )
+position = Vector2( 0, -275 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( 3, 0 )

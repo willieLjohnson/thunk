@@ -14,7 +14,14 @@ var velocity = Vector2.ZERO
 var bullet = preload("res://Player/Bullet.tscn")
 var can_fire = true
 
+var debugging = false
+
 onready var shoot_dir = $ShootDir
+var shoot_dir_lerped = Vector2.ZERO
+
+
+onready var default_shape_scale = $Body.scale
+
 
 onready var move_joystick = get_parent().get_node("UI/Container/Joysticks/MoveJoystick/JoystickButton")
 onready var shoot_joystick = get_parent().get_node("UI/Container/Joysticks/ShootJoystick/JoystickButton")
@@ -25,20 +32,18 @@ func _ready():
 	Global.player = self
 	
 	Global.update_OS_status()
-	if not Global.is_mobile:
+	if not Global.is_mobile and not debugging:
 		move_joystick.get_parent().hide()
 		shoot_joystick.get_parent().hide()
 
 
-func _process(delta):
-	look_at(get_global_mouse_position())
-	
-	if Input.is_action_pressed("fire") and can_fire:
+func _process(delta):	
+	if Input.is_action_pressed("fire") and can_fire and not debugging:
 		var bullet_instance = bullet.instance()
 		bullet_instance.modulate = Styles.PLAYER_COLOR
 		bullet_instance.position = $Weapon/BulletPoint.get_global_position()
-		bullet_instance.rotation_degrees = rotation_degrees
-		bullet_instance.apply_impulse(Vector2(), Vector2(bullet_speed, 0).rotated(rotation))
+		bullet_instance.rotation_degrees = $Weapon.rotation_degrees
+		bullet_instance.apply_impulse(Vector2(), Vector2(0, -bullet_speed).rotated($Weapon.rotation))
 		get_tree().get_root().add_child(bullet_instance)
 		can_fire = false
 		yield(get_tree().create_timer(fire_rate), "timeout")
@@ -52,13 +57,13 @@ func _physics_process(delta: float) -> void:
 	input_vector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 	input_vector = input_vector.normalized()
 	
-
-	if Global.is_mobile:
-		input_vector = move_joystick.get_value()		
-
+	
+	if Global.is_mobile or debugging:
+		input_vector = move_joystick.get_value()
+		shoot_dir.set_cast_to(shoot_joystick.get_value())
+		shoot_dir_lerped.move_toward(get_shoot_dir_point(), 0.1)
+		$Weapon.look_at(shoot_dir_lerped)
 		if shoot_joystick.event_is_pressed and Global.node_creation_parent != null and can_fire:
-			shoot_dir.set_cast_to(shoot_joystick.get_value())
-
 #			if damage >= 3:
 #				Global.vibrate(2)
 #			elif damage >= 2:
@@ -66,19 +71,18 @@ func _physics_process(delta: float) -> void:
 #			else:
 #				Global.vibrate()
 #
-	
-			var ray_endpoint = shoot_dir.global_position + shoot_dir.cast_to
 			var bullet_instance = bullet.instance()
 			bullet_instance.modulate = Styles.PLAYER_COLOR
 			bullet_instance.position = $Weapon/BulletPoint.get_global_position()
-			bullet_instance.rotation_degrees = rotation_degrees
-			bullet_instance.apply_impulse(Vector2(), Vector2(bullet_speed, 0).rotated(rotation))
+			bullet_instance.look_at(get_shoot_dir_point())
+			bullet_instance.apply_impulse(Vector2(), Vector2(bullet_speed, 0).rotated($Weapon.rotation))
 			get_tree().get_root().add_child(bullet_instance)
 			can_fire = false
 			yield(get_tree().create_timer(fire_rate), "timeout")
 			can_fire = true
 
 	else:
+		$Weapon.look_at(get_global_mouse_position())
 #		if Input.is_action_pressed("shoot") and Global.node_creation_parent != null and can_shoot:
 #			var direction = get_global_mouse_position() 
 #			var recoil = current_weapon.shoot(damage, direction, modulate)
@@ -96,7 +100,6 @@ func _physics_process(delta: float) -> void:
 		velocity = velocity.move_toward(input_vector * MAX_SPEED, ACCELERATION * delta)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
-		rotation /= 2
 
 	move()
 	squash_stretch(delta)
@@ -110,8 +113,10 @@ func move() -> void:
 	
 func squash_stretch(delta) -> void:
 	var scale_vel = Vector2(abs(velocity.x), abs(velocity.y))
-	var squash = ((scale_vel.y + scale_vel.x) * 0.0002)
-##	var new_scale = Vector2(squash + default_shape_scale.x, (squash / -1.5) + default_shape_scale.x)
-#	$Circle.rotation = velocity.angle()
-#	$Circle.scale = $Circle.scale.move_toward(new_scale, ACCELERATION * delta)
+	var squash = ((scale_vel.y + scale_vel.x) * 0.00002)
+	var new_scale = Vector2(squash + default_shape_scale.x, (squash / -1.5) + default_shape_scale.x)
+	$Body.rotation = velocity.angle()
+	$Body.scale = $Body.scale.move_toward(new_scale, ACCELERATION * delta)
 
+func get_shoot_dir_point() -> Vector2:
+	return shoot_dir.global_position + shoot_dir.cast_to
