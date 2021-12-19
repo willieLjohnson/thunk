@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Tilemaps/terrainTiles_default.png" type="Texture" id=1]
 [ext_resource path="res://Player/Player.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Player/Player.gd" type="Script" id=3]
 [ext_resource path="res://Collidables/Tree.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/World.gd" type="Script" id=5]
+[ext_resource path="res://Player/Weapon.tscn" type="PackedScene" id=6]
 [ext_resource path="res://effects/BloomEnvironment.tscn" type="PackedScene" id=7]
 [ext_resource path="res://ui/UI.tscn" type="PackedScene" id=8]
 
@@ -584,10 +585,17 @@ position = Vector2( 503, 313 )
 script = ExtResource( 3 )
 speed = 200
 
-[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Player"]
+[node name="WeaponTransform" type="RemoteTransform2D" parent="Player/Body" index="0"]
+remote_path = NodePath("../../../Weapon")
+update_rotation = false
+
+[node name="CameraTransform" type="RemoteTransform2D" parent="Player"]
 remote_path = NodePath("../../Camera2D")
 update_rotation = false
 update_scale = false
+
+[node name="Weapon" parent="." instance=ExtResource( 6 )]
+position = Vector2( 503, 313 )
 
 [node name="Tree" parent="." instance=ExtResource( 4 )]
 position = Vector2( 296, 69 )

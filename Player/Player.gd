@@ -25,9 +25,11 @@ onready var default_shape_scale = $Body.scale
 onready var move_joystick = get_parent().get_node("UI/Container/Joysticks/MoveJoystick/JoystickButton")
 onready var shoot_joystick = get_parent().get_node("UI/Container/Joysticks/ShootJoystick/JoystickButton")
 
+onready var current_weapon = get_parent().get_node("Weapon")
 
 func _ready():
 	modulate = Styles.PLAYER_COLOR
+	current_weapon.modulate = modulate
 	Global.player = self
 	
 	Global.update_OS_status()
@@ -40,9 +42,9 @@ func _process(delta):
 	if Input.is_action_pressed("fire") and can_fire and not debugging:
 		var bullet_instance = bullet.instance()
 		bullet_instance.modulate = Styles.PLAYER_COLOR
-		bullet_instance.position = $Weapon/BulletPoint.get_global_position()
-		bullet_instance.rotation_degrees = $Weapon.rotation_degrees
-		bullet_instance.apply_impulse(Vector2(), Vector2(0, -bullet_speed).rotated($Weapon.rotation))
+		bullet_instance.position = current_weapon.get_child(0).get_global_position()
+		bullet_instance.rotation_degrees = current_weapon.rotation_degrees
+		bullet_instance.apply_impulse(Vector2(), Vector2(0, -bullet_speed).rotated(current_weapon.rotation))
 		get_tree().get_root().add_child(bullet_instance)
 		can_fire = false
 		yield(get_tree().create_timer(fire_rate), "timeout")
@@ -62,7 +64,7 @@ func _physics_process(delta: float) -> void:
 		input_vector = move_joystick.get_value()
 		shoot_dir.set_cast_to(shoot_joystick.get_value())
 		shoot_dir_lerped.move_toward(get_shoot_dir_point(), 0.1)
-		$Weapon.look_at(shoot_dir_lerped)
+		current_weapon.look_at(shoot_dir_lerped)
 		if shoot_joystick.event_is_pressed and Global.node_creation_parent != null and can_fire:
 #			if damage >= 3:
 #				Global.vibrate(2)
@@ -73,16 +75,16 @@ func _physics_process(delta: float) -> void:
 #
 			var bullet_instance = bullet.instance()
 			bullet_instance.modulate = Styles.PLAYER_COLOR
-			bullet_instance.position = $Weapon/BulletPoint.get_global_position()
+			bullet_instance.position = current_weapon.get_child(0).get_global_position()
 			bullet_instance.look_at(get_shoot_dir_point())
-			bullet_instance.apply_impulse(Vector2(), Vector2(bullet_speed, 0).rotated($Weapon.rotation))
+			bullet_instance.apply_impulse(Vector2(), Vector2(bullet_speed, 0).rotated(current_weapon.rotation))
 			get_tree().get_root().add_child(bullet_instance)
 			can_fire = false
 			yield(get_tree().create_timer(fire_rate), "timeout")
 			can_fire = true
 
 	else:
-		$Weapon.look_at(get_global_mouse_position())
+		current_weapon.look_at(get_global_mouse_position())
 #		if Input.is_action_pressed("shoot") and Global.node_creation_parent != null and can_shoot:
 #			var direction = get_global_mouse_position() 
 #			var recoil = current_weapon.shoot(damage, direction, modulate)
@@ -91,7 +93,7 @@ func _physics_process(delta: float) -> void:
 #			Global.camera.screen_shake(5, 0.01)
 #			$ReloadSpeed.start()
 #
-#		$Weapons.look_at(get_global_mouse_position())
+#		current_weapons.look_at(get_global_mouse_position())
 #
 		if Input.is_action_just_pressed("ui_cancel"):
 			get_tree().notification(MainLoop.NOTIFICATION_APP_PAUSED)
@@ -102,22 +104,23 @@ func _physics_process(delta: float) -> void:
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 
 	move()
-	squash_stretch(delta)
+#	squash_stretch(delta)
 #	var new_modulate = Color.from_hsv(base_modulate.h + (damage * 0.2), base_modulate.s + (damage * 0.2), base_modulate.v - (damage * 0.05), base_modulate.a)
 #	modulate = lerp(modulate, new_modulate, 0.3)
 	
 func move() -> void:
 	velocity = move_and_slide(velocity)
-#
+	var vel_normal = velocity.normalized()
+	rotation = vel_normal.angle()
+	
 #	Global.update_depth()
 	
 func squash_stretch(delta) -> void:
 	var scale_vel = Vector2(abs(velocity.x), abs(velocity.y))
 	var squash = ((scale_vel.y + scale_vel.x) * 0.00002)
-	var new_scale = Vector2(squash + default_shape_scale.x, (squash / -1.5) + default_shape_scale.x)
-	var vel_normal = velocity.normalized()
-	rotation = vel_normal.angle()
-#	$Body.scale = $Body.scale.move_toward(new_scale, ACCELERATION * delta)
+
+	var new_scale = Vector2(squash - default_shape_scale.x, (squash / 1.5) + default_shape_scale.y)
+	$Body.scale = $Body.scale.move_toward(new_scale, ACCELERATION * delta)
 
 func get_shoot_dir_point() -> Vector2:
 	return shoot_dir.global_position + shoot_dir.cast_to
