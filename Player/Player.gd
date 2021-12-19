@@ -4,7 +4,6 @@ export var speed = 100
 export var bullet_speed = 1000
 export var fire_rate = 0.1
 
-
 export var ACCELERATION = 1890
 export var MAX_SPEED = 500
 export var FRICTION = 670
@@ -57,7 +56,8 @@ func _physics_process(delta: float) -> void:
 	input_vector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 	input_vector = input_vector.normalized()
 	
-	
+
+		
 	if Global.is_mobile or debugging:
 		input_vector = move_joystick.get_value()
 		shoot_dir.set_cast_to(shoot_joystick.get_value())
@@ -115,8 +115,9 @@ func squash_stretch(delta) -> void:
 	var scale_vel = Vector2(abs(velocity.x), abs(velocity.y))
 	var squash = ((scale_vel.y + scale_vel.x) * 0.00002)
 	var new_scale = Vector2(squash + default_shape_scale.x, (squash / -1.5) + default_shape_scale.x)
-	$Body.rotation = velocity.angle()
-	$Body.scale = $Body.scale.move_toward(new_scale, ACCELERATION * delta)
+	var vel_normal = velocity.normalized()
+	rotation = vel_normal.angle()
+#	$Body.scale = $Body.scale.move_toward(new_scale, ACCELERATION * delta)
 
 func get_shoot_dir_point() -> Vector2:
 	return shoot_dir.global_position + shoot_dir.cast_to
